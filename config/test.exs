@@ -14,6 +14,6 @@ config :hitchcock, Hitchcock.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
-  database: "hitchcock_test",
+  database: "mg4",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
