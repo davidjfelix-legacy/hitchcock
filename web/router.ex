@@ -14,13 +14,19 @@ defmodule Hitchcock.Router do
   end
 
   scope "/", Hitchcock do
-    pipe_through :browser # Use the default browser stack
+    pipe_through :api
+
+    # /videos
+    # /users
+    # /groups
+    # /permission_groups
 
     get "/", PageController, :index
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", Hitchcock do
-  #   pipe_through :api
-  # end
+  scope "/docs", Hitchcock do
+    pipe_through :browser
+
+    get "*path", PageController, :index
+  end
 end
