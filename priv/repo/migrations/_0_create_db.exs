@@ -29,13 +29,42 @@ defmodule Hitchcock.Repo.Migrations.CreateDb do
     ### Comment Stream Comments
     create table(:comment_stream_comments, primary_key: false) do
       add :id, :uuid, primary_key: true
-      add :time, :integer, null
+      add :time, :integer, null: false
 
       add :comment_id, references(:comments, on_delete: :delete_all), null: false
-      add :video_id, references(:videos, on_delete: :delete_all), null: false
 
       timestamps
     end
+
+    # TODO: add constraint to only allow positive time
+
+
+    ### Emoji Reactions
+    create table(:emoji_reactions, primary_key: false) do
+      add :id, :uuid, primary_key: true
+      add :emoji, :string, null: false
+
+      add :user_id, references(:users, on_delete: :delete_all), null: false
+      add :video_id, references(:videos), on_delete: :delete_all), null: false
+
+      timestamps
+    end
+
+    # TODO: add constraint to only allow known emojis
+
+
+    ### Emoji Reaction Stream
+    create table(:emoji_stream_reactions, primary_key: false) do
+      add :id, :uuid, primary_key: true
+      add :time, :integer, null: false
+
+      add :emoji_reaction_id, references(:emoji_reactions, on_delete: :delete_all), null: false
+
+      timestamps
+    end
+
+    # TODO: add constraint to only allow positive time
+
 
     ### Group Permissions
     create table(:group_permissions, primary_key: false) do
@@ -81,8 +110,26 @@ defmodule Hitchcock.Repo.Migrations.CreateDb do
     create unique_index(:users, [:email])
 
 
+    ### Poll
+    create table(:polls, primary_key: false) do
+      add :id, :uuid, primary_key: true
+      add :title, :string, null: false
+
+      timestamps
+    end
+
+
+    ### Poll Options
+    create table(:poll_options, primary_key: false) do
+      add :id, :uuid, primary_key: true
+      add :body, :text, null: false
+
+      timestamps
+    end
+
+
     ### Videos
-    create table(:videos) do
+    create table(:videos, primary_key: false) do
       add :id, :uuid, primary_key: true
       add :title, :string, null: false
       add :url, :string, null: false
