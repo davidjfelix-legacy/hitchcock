@@ -15,9 +15,9 @@ defmodule Hitchcock.Router do
 
   scope "/", Hitchcock do
     pipe_through :api
-    get "/groups", GroupController, :show
-    get "/users", UserController, :show
-    get "/videos", VideoController, :show
+    resources "/groups", GroupController
+    resources "/users", UserController
+    resources "/videos", VideoController
     get "/", PageController, :index
   end
 
