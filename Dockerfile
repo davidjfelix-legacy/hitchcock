@@ -6,6 +6,7 @@ WORKDIR /opt/hitchcock
 RUN apt-get -yq update && \
     apt-get -yq install --no-install-recommends \
         libpq-dev \
+        postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Get deps
@@ -17,4 +18,3 @@ COPY ./ /opt/hitchcock
 RUN mix local.rebar && mix compile --long-compilation-threshold 40
 
 ENTRYPOINT ["mix", "phoenix.server"]
-

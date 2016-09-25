@@ -38,5 +38,5 @@ config :hitchcock, Hitchcock.Repo,
   username: "postgres",
   password: "postgres",
   database: "mg4",
-  hostname: "localhost",
+  hostname: "db",
   pool_size: 10
