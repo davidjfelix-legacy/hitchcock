@@ -11,25 +11,25 @@ defmodule Hitchcock.GroupControllerTest do
 
   test "lists all entries on index", %{conn: conn} do
     conn = get conn, group_path(conn, :index)
-    assert json_response(conn, 200)["data"] == []
+    assert json_response(conn, 200) == []
   end
 
   test "shows chosen resource", %{conn: conn} do
     group = Repo.insert! %Group{}
     conn = get conn, group_path(conn, :show, group)
-    assert json_response(conn, 200)["data"] == %{"id" => group.id,
+    assert json_response(conn, 200) == %{"id" => group.id,
       "name" => group.name}
   end
 
   test "does not show resource and instead throw error when id is nonexistent", %{conn: conn} do
     assert_error_sent 404, fn ->
-      get conn, group_path(conn, :show, -1)
+      get conn, group_path(conn, :show, Ecto.UUID.generate())
     end
   end
 
   test "creates and renders resource when data is valid", %{conn: conn} do
     conn = post conn, group_path(conn, :create), group: @valid_attrs
-    assert json_response(conn, 201)["data"]["id"]
+    assert json_response(conn, 201)["id"]
     assert Repo.get_by(Group, @valid_attrs)
   end
 
@@ -41,7 +41,7 @@ defmodule Hitchcock.GroupControllerTest do
   test "updates and renders chosen resource when data is valid", %{conn: conn} do
     group = Repo.insert! %Group{}
     conn = put conn, group_path(conn, :update, group), group: @valid_attrs
-    assert json_response(conn, 200)["data"]["id"]
+    assert json_response(conn, 200)["id"]
     assert Repo.get_by(Group, @valid_attrs)
   end
 
