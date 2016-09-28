@@ -3,7 +3,11 @@ defmodule Hitchcock.VideoTest do
 
   alias Hitchcock.Video
 
-  @valid_attrs %{title: "some content"}
+  @valid_attrs %{
+    title: "some content",
+    url: "https://videos.mg4.tv/1",
+    description: "some description"
+  }
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

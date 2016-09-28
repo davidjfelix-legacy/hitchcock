@@ -1,13 +1,17 @@
 defmodule Hitchcock.Video do
   use Hitchcock.Web, :model
 
+  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @derive {Poison.Encoder, only: [:id, :title, :url, :description]}
   schema "videos" do
     field :title, :string
+    field :url, :string
+    field :description, :string
 
     timestamps
   end
 
-  @required_fields ~w(title)
+  @required_fields ~w(title url description)
   @optional_fields ~w()
 
   @doc """
