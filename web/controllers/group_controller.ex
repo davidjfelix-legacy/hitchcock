@@ -3,14 +3,12 @@ defmodule Hitchcock.GroupController do
 
   alias Hitchcock.Group
 
-  plug :scrub_params, "group" when action in [:create, :update]
-
   def index(conn, _params) do
     groups = Repo.all(Group)
     render(conn, "index.json", groups: groups)
   end
 
-  def create(conn, %{"group" => group_params}) do
+  def create(conn, group_params) do
     changeset = Group.changeset(%Group{}, group_params)
 
     case Repo.insert(changeset) do
@@ -31,8 +29,8 @@ defmodule Hitchcock.GroupController do
     render(conn, "show.json", group: group)
   end
 
-  def update(conn, %{"id" => id, "group" => group_params}) do
-    group = Repo.get!(Group, id)
+  def update(conn, group_params) do
+    group = Repo.get!(Group, group_params['id'])
     changeset = Group.changeset(group, group_params)
 
     case Repo.update(changeset) do

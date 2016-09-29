@@ -2,8 +2,7 @@ defmodule Hitchcock.UserController do
   use Hitchcock.Web, :controller
 
   alias Hitchcock.User
-
-  plug :scrub_params, "user" when action in [:create, :update]
+  alias Ecto.UUID
 
   def index(conn, _params) do
     users = Repo.all(User)
@@ -27,8 +26,15 @@ defmodule Hitchcock.UserController do
   end
 
   def show(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
-    render(conn, "show.json", user: user)
+    case UUID.cast(id) do
+      {:ok, uuid} ->
+        user = Repo.get!(User, uuid)
+        render(conn, "show.json", user: user)
+      :error ->
+        conn
+        |> put_status(:bad_request)
+        |> render(Hitchcock.ErrorView, "error.json", error: %{code: 400, message: "Invalid ID"})
+    end
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do

@@ -8,6 +8,8 @@ defmodule Hitchcock.Video do
     field :url, :string
     field :description, :string
 
+    belongs_to :owner, User
+
     timestamps
   end
 
