@@ -9,6 +9,9 @@ defmodule Hitchcock.User do
     field :encrypted_password, :string
     field :password, :string, virtual: true
 
+    has_many :groups, Group
+    has_many :videos, Video
+
     timestamps
   end
 

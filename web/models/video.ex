@@ -8,12 +8,13 @@ defmodule Hitchcock.Video do
     field :url, :string
     field :description, :string
 
-    belongs_to :owner, User
+    belongs_to :owner, User, type: Ecto.UUID
+    belongs_to :group, Groug, type: Ecto.UUID
 
     timestamps
   end
 
-  @required_fields ~w(title url description)
+  @required_fields ~w(title url description owner_id)
   @optional_fields ~w()
 
   @doc """

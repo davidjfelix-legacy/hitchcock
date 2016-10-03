@@ -5,10 +5,12 @@ defmodule Hitchcock.Group do
   schema "groups" do
     field :name, :string
 
+    belongs_to :owner, User, type: Ecto.UUID
+
     timestamps
   end
 
-  @required_fields ~w(name)
+  @required_fields ~w(name owner_id)
   @optional_fields ~w()
 
   @doc """

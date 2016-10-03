@@ -28,12 +28,22 @@ defmodule Hitchcock.UserController do
   def show(conn, %{"id" => id}) do
     case UUID.cast(id) do
       {:ok, uuid} ->
-        user = Repo.get!(User, uuid)
-        render(conn, "show.json", user: user)
+        case Repo.get(User, uuid) do
+          nil ->
+            conn
+            |> put_status(:not_found)
+            |> render(Hitchcock.ErrorView,
+                      "error.json",
+                      error: %{code: 404, message: "ID not found", fields: ["id"]})
+          user ->
+            render(conn, "show.json", user: user)
+        end
       :error ->
         conn
         |> put_status(:bad_request)
-        |> render(Hitchcock.ErrorView, "error.json", error: %{code: 400, message: "Invalid ID"})
+        |> render(Hitchcock.ErrorView,
+                  "error.json",
+                  error: %{code: 400, message: "Invalid ID"})
     end
   end
 
