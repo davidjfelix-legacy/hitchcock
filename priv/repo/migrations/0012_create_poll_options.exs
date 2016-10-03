@@ -2,6 +2,7 @@ defmodule Hitchcock.Repo.Migrations.CreatePollOptions do
   use Ecto.Migration
 
   def change do
+    
     ### Poll Options
     create table(:poll_options, primary_key: false) do
       add :id, :uuid, primary_key: true

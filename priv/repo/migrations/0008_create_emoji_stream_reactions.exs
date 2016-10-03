@@ -3,7 +3,6 @@ defmodule Hitchcock.Repo.Migrations.CreateEmojiStreamReactions do
 
   def change do
 
-
     ### Emoji Reaction Stream
     create table(:emoji_stream_reactions, primary_key: false) do
       add :id, :uuid, primary_key: true

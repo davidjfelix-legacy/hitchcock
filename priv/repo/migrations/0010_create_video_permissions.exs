@@ -2,6 +2,7 @@ defmodule Hitchcock.Repo.Migrations.CreateVideoPermissions do
   use Ecto.Migration
 
   def change do
+    
     ### Video Permissions
     create table(:video_permissions, primary_key: false) do
       add :id, :uuid, primary_key: true

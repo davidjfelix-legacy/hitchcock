@@ -2,6 +2,7 @@ defmodule Hitchcock.Repo.Migrations.CreateGroupPermissions do
   use Ecto.Migration
 
   def change do
+    
     ### Group Permissions
     create table(:group_permissions, primary_key: false) do
       add :id, :uuid, primary_key: true

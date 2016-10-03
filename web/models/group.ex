@@ -2,6 +2,7 @@ defmodule Hitchcock.Group do
   use Hitchcock.Web, :model
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
+
   schema "groups" do
     field :name, :string
 
