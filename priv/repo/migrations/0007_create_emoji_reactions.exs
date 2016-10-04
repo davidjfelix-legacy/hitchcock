@@ -6,8 +6,8 @@ defmodule Hitchcock.Repo.Migrations.CreateEmojiReactions do
     ### Emoji Reactions
     create table(:emoji_reactions, primary_key: false) do
       add :id, :uuid, primary_key: true
-      add :emoji, :string, null: false
 
+      add :emoji_id, references(:emoji, on_delete: :delete_all, type: :uuid), null: false
       add :author_id, references(:users, on_delete: :delete_all, type: :uuid), null: false
       add :video_id, references(:videos, on_delete: :delete_all, type: :uuid), null: false
 
