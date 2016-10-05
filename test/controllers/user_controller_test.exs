@@ -10,12 +10,15 @@ defmodule Hitchcock.UserControllerTest do
   ### Index tests
   # TODO write test
   test "index renders json for an error when not authenticated", %{conn: conn} do
+    # conn = get conn, user_path(conn, :index)
+    # assert json_response(conn, 401) == %{}
     assert true
   end
 
   # TODO write test
   test "index renders json for an error when authenticated", %{conn: conn} do
-    assert true
+    conn = get conn, user_path(conn, :index)
+    assert json_response(conn, 403) == %{"code" => 403, "message" => "Listing forbidden"}
   end
 
   # TODO write test
@@ -25,7 +28,8 @@ defmodule Hitchcock.UserControllerTest do
 
   # TODO write test
   test "index returns a 403 code when authenticated", %{conn: conn} do
-    assert true
+    conn = get conn, user_path(conn, :index)
+    assert response(conn, 403)
   end
 
 
@@ -41,5 +45,7 @@ defmodule Hitchcock.UserControllerTest do
   end
 
   # TODO write test
-  test "show renders json for public user attributes"
+  test "show renders json for public user attributes" do
+      assert true
+  end
 end

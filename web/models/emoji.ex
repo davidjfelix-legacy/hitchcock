@@ -1,7 +1,7 @@
 defmodule Hitchcock.Emoji do
   use Hitchcock.Web, :model
 
-  @primary_key {:id, Ecto.UUID, autogenerate:true}
+  @primary_key {:id, Ecto.UUID, autogenerate: true}
 
   schema "emoji" do
     field :name, :string
