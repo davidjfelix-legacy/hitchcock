@@ -15,7 +15,6 @@ defmodule Hitchcock.UserControllerTest do
     assert true
   end
 
-  # TODO write test
   test "index renders json for an error when authenticated", %{conn: conn} do
     conn = get conn, user_path(conn, :index)
     assert json_response(conn, 403) == %{"code" => 403, "message" => "Listing forbidden"}
@@ -23,10 +22,11 @@ defmodule Hitchcock.UserControllerTest do
 
   # TODO write test
   test "index returns a 401 code when not authenticated", %{conn: conn} do
+    # conn = get conn, user_path(conn, :index)
+    # assert response(conn, 401)
     assert true
   end
 
-  # TODO write test
   test "index returns a 403 code when authenticated", %{conn: conn} do
     conn = get conn, user_path(conn, :index)
     assert response(conn, 403)
@@ -44,8 +44,8 @@ defmodule Hitchcock.UserControllerTest do
     assert true
   end
 
-  # TODO write test
-  test "show renders json for public user attributes" do
-      assert true
+  test "show renders json for an error for a user that does not exist", %{conn: conn} do
+    conn = get conn, user_path(conn, :show, Ecto.UUID.generate())
+    assert json_response(conn, 404) == %{"code" => 404, "fields" => ["id"], "message" => "ID not found"}
   end
 end
