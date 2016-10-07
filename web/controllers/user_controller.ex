@@ -51,16 +51,34 @@ defmodule Hitchcock.UserController do
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    user = Repo.get!(User, id)
-    changeset = User.changeset(user, user_params)
-
-    case Repo.update(changeset) do
-      {:ok, user} ->
-        render(conn, "show.json", user: user)
-      {:error, changeset} ->
+    case UUID.case(id) do
+      {:ok, uuid} ->
+        case Repo.get(User, uuid) do
+          nil ->
+            conn
+            |> put_status(:not_found)
+            |> render(Hitchcock.ErrorView,
+                      "error.json",
+                      error: %{code: 404, message: "ID not found", fields: ["id"]})
+          group ->
+            changeset = User.changeset(user, user_params)
+            case Repo.update(changeset) do
+              {:ok, user} ->
+                render(conn, "show.json", user: user)
+              {:error, changeset} ->
+                conn
+                |> put_status(:unprocessable_entity)
+                |> render(Hitchcock.ChangesetView,
+                          "error.json",
+                          changeset: changeset)
+            end
+        end
+      :error ->
         conn
-        |> put_status(:unprocessable_entity)
-        |> render(Hitchcock.ChangesetView, "error.json", changeset: changeset)
+        |> put_status(:bad_request)
+        |> render(Hitchcock.ErrorView,
+                  "error.json",
+                  error: %{code: 400, message: "Invalid ID"})
     end
   end
 

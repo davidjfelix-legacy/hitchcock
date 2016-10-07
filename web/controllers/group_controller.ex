@@ -2,6 +2,7 @@ defmodule Hitchcock.GroupController do
   use Hitchcock.Web, :controller
 
   alias Hitchcock.Group
+  alias Ecto.UUID
 
   def index(conn, _params) do
     groups = Repo.all(Group)
@@ -25,21 +26,56 @@ defmodule Hitchcock.GroupController do
   end
 
   def show(conn, %{"id" => id}) do
-    group = Repo.get!(Group, id)
-    render(conn, "show.json", group: group)
+    case UUID.cast(id) do
+      {:ok, uuid} ->
+        case Repo.get(Group, uuid) do
+          nil ->
+            conn
+            |> put_status(:not_found)
+            |> render(Hitchcock.ErrorView,
+                      "error.json",
+                      error: %{code: 404, message: "ID not found", fields: ["id"]})
+          group ->
+            render(conn, "show.json", group: group)
+        end
+      :error ->
+        conn
+        |> put_status(:bad_request)
+        |> render(Hitchcock.ErrorView,
+                  "error.json",
+                  error: %{code: 400, message: "Invalid ID"})
+    end
   end
 
-  def update(conn, group_params) do
-    group = Repo.get!(Group, group_params['id'])
-    changeset = Group.changeset(group, group_params)
-
-    case Repo.update(changeset) do
-      {:ok, group} ->
-        render(conn, "show.json", group: group)
-      {:error, changeset} ->
+  def update(conn, %{"id" => id, "group" => group_params}) do
+    case UUID.cast(id) do
+      {:ok, uuid} ->
+        case Repo.get(Group, uuid) do
+          nil ->
+            conn
+            |> put_status(:not_found)
+            |> render(Hitchcock.ErrorView,
+                      "error.json",
+                      error: %{code: 404, message: "ID not found", fields: ["id"]})
+          group ->
+            changeset = Group.changeset(group, group_params)
+            case Repo.update(changeset) do
+              {:ok, group} ->
+                render(conn, "show.json", group: group)
+              {:error, changeset} ->
+                conn
+                |> put_status(:unprocessable_entity)
+                |> render(Hitchcock.ChangesetView,
+                          "error.json",
+                          changeset: changeset)
+            end
+        end
+      :error ->
         conn
-        |> put_status(:unprocessable_entity)
-        |> render(Hitchcock.ChangesetView, "error.json", changeset: changeset)
+        |> put_status(:bad_request)
+        |> render(Hitchcock.ErrorView,
+                  "error.json",
+                  error: %{code: 400, message: "Invalid ID"})
     end
   end
 
