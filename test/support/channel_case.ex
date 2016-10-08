@@ -32,8 +32,10 @@ defmodule Hitchcock.ChannelCase do
   end
 
   setup tags do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Hitchcock.Repo)
+
     unless tags[:async] do
-      Ecto.Adapters.SQL.restart_test_transaction(Hitchcock.Repo, [])
+      Ecto.Adapters.SQL.Sandbox.mode(Hitchcock.Repo, {:shared, self()})
     end
 
     :ok

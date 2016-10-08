@@ -20,10 +20,4 @@ defmodule Hitchcock.Router do
     resources "/videos", VideoController
     get "/", PageController, :index
   end
-
-  scope "/docs", Hitchcock do
-    pipe_through :browser
-
-    get "*path", PageController, :index
-  end
 end

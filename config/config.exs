@@ -5,6 +5,11 @@
 # is restricted to this project.
 use Mix.Config
 
+# Configures Ecto repos
+config :hitchcock,
+  namespace: Hitchcock,
+  ecto_repos: [Hitchcock.Repo]
+
 # Configures the endpoint
 config :hitchcock, Hitchcock.Endpoint,
   url: [host: "localhost"],
