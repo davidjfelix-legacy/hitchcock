@@ -24,7 +24,9 @@ defmodule Hitchcock.UserController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Hitchcock.ChangesetView, "error.json", changeset: changeset)
+        |> render(Hitchcock.ChangesetView,
+                  "error.json",
+                  changeset: changeset)
     end
   end
 
@@ -51,7 +53,7 @@ defmodule Hitchcock.UserController do
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    case UUID.case(id) do
+    case UUID.cast(id) do
       {:ok, uuid} ->
         case Repo.get(User, uuid) do
           nil ->
@@ -60,7 +62,7 @@ defmodule Hitchcock.UserController do
             |> render(Hitchcock.ErrorView,
                       "error.json",
                       error: %{code: 404, message: "ID not found", fields: ["id"]})
-          group ->
+          user ->
             changeset = User.changeset(user, user_params)
             case Repo.update(changeset) do
               {:ok, user} ->

@@ -21,7 +21,9 @@ defmodule Hitchcock.GroupController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Hitchcock.ChangesetView, "error.json", changeset: changeset)
+        |> render(Hitchcock.ChangesetView,
+                  "error.json",
+                  changeset: changeset)
     end
   end
 
