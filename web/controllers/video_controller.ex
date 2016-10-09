@@ -2,6 +2,7 @@ defmodule Hitchcock.VideoController do
   use Hitchcock.Web, :controller
 
   alias Hitchcock.Video
+  alias Ecto.UUID
 
   plug :scrub_params, "video" when action in [:create, :update]
 
@@ -27,21 +28,56 @@ defmodule Hitchcock.VideoController do
   end
 
   def show(conn, %{"id" => id}) do
-    video = Repo.get!(Video, id)
-    render(conn, "show.json", video: video)
+    case UUID.cast(id) do
+      {:ok, uuid} ->
+        case Repo.get(Video, uuid) do
+          nil ->
+            conn
+            |> put_status(:not_found)
+            |> render(Hitchcock.ErrorView,
+                      "error.json",
+                      error: %{code: 404, message: "ID not found", fields: ["id"]})
+          video ->
+            render(conn, "show.json", video: video)
+        end
+      :error ->
+        conn
+        |> put_status(:bad_request)
+        |> render(Hitchcock.ErrorView,
+                  "error.json",
+                  error: %{code: 400, message: "Invalid ID"})
+    end
   end
 
   def update(conn, %{"id" => id, "video" => video_params}) do
-    video = Repo.get!(Video, id)
-    changeset = Video.changeset(video, video_params)
-
-    case Repo.update(changeset) do
-      {:ok, video} ->
-        render(conn, "show.json", video: video)
-      {:error, changeset} ->
+    case UUID.cast(id) do
+      {:ok, uuid} ->
+        case Repo.get(Video, uuid) do
+          nil ->
+            conn
+            |> put_status(:not_found)
+            |> render(Hitchcock.ErrorView,
+                      "error.json",
+                      error: %{code: 404, message: "ID not found", fields: ["id"]})
+          video ->
+            changeset = Video.changeset(video, video_params)
+            case Repo.update(changeset) do
+              {:ok, video} ->
+                render(conn, "show.json", video: video)
+              {:error, changeset} ->
+                conn
+                |> put_status(:unprocessable_entity)
+                |> render(Hitchcock.ChangesetView,
+                          "error.json",
+                          changeset: changeset)
+            end
+        end
+      :error ->
         conn
-        |> put_status(:unprocessable_entity)
-        |> render(Hitchcock.ChangesetView, "error.json", changeset: changeset)
+        |> put_status(:bad_request)
+        |> render(Hitchcock.ErrorView,
+                  "error.json",
+                  error: %{code: 400, message: "Invalid ID"})
     end
   end
 
