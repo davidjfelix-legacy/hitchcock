@@ -6,6 +6,10 @@ defmodule Hitchcock.UserView do
   end
 
   def render("show.json", %{user: user}) do
-    %{id: user.id}
+    %{
+      id: user.id,
+      username: user.username,
+      email: user.email
+    }
   end
 end

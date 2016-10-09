@@ -1,6 +1,8 @@
 defmodule Hitchcock.Group do
   use Hitchcock.Web, :model
 
+  alias Hitchcock.User
+
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
   schema "groups" do

@@ -4,14 +4,12 @@ defmodule Hitchcock.VideoController do
   alias Hitchcock.Video
   alias Ecto.UUID
 
-  plug :scrub_params, "video" when action in [:create, :update]
-
   def index(conn, _params) do
     videos = Repo.all(Video)
     render(conn, "index.json", videos: videos)
   end
 
-  def create(conn, %{"video" => video_params}) do
+  def create(conn, video_params) do
     changeset = Video.changeset(%Video{}, video_params)
 
     case Repo.insert(changeset) do
@@ -49,8 +47,8 @@ defmodule Hitchcock.VideoController do
     end
   end
 
-  def update(conn, %{"id" => id, "video" => video_params}) do
-    case UUID.cast(id) do
+  def update(conn, video_params) do
+    case UUID.cast(video_params["id"]) do
       {:ok, uuid} ->
         case Repo.get(Video, uuid) do
           nil ->

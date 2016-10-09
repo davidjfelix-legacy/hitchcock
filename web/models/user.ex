@@ -1,6 +1,8 @@
 defmodule Hitchcock.User do
   use Hitchcock.Web, :model
 
+  alias Hitchcock.{Group, Video}
+
   @primary_key {:id, Ecto.UUID, autogenerate: true}
   @derive {Poison.Encoder, only: [:id, :username, :email]}
   schema "users" do

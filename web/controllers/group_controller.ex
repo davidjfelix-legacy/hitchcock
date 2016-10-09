@@ -49,8 +49,8 @@ defmodule Hitchcock.GroupController do
     end
   end
 
-  def update(conn, %{"id" => id, "group" => group_params}) do
-    case UUID.cast(id) do
+  def update(conn, group_params) do
+    case UUID.cast(group_params["id"]) do
       {:ok, uuid} ->
         case Repo.get(Group, uuid) do
           nil ->

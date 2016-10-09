@@ -12,7 +12,7 @@ defmodule Hitchcock.UserController do
               error: %{code: 403, message: "Listing forbidden"})
   end
 
-  def create(conn, %{"user" => user_params}) do
+  def create(conn, user_params) do
     changeset = User.changeset(%User{}, user_params)
 
     case Repo.insert(changeset) do
@@ -52,8 +52,8 @@ defmodule Hitchcock.UserController do
     end
   end
 
-  def update(conn, %{"id" => id, "user" => user_params}) do
-    case UUID.cast(id) do
+  def update(conn, user_params) do
+    case UUID.cast(user_params["id"]) do
       {:ok, uuid} ->
         case Repo.get(User, uuid) do
           nil ->

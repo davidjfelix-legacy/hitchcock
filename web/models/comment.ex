@@ -1,6 +1,8 @@
 defmodule Hitchcock.Comment do
   use Hitchcock.Web, :model
 
+  alias Hitchcock.{User, Video}
+
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
   schema "comments" do
