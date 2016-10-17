@@ -10,10 +10,19 @@ services:
       - POSTGRES_DB=mg4
 
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: .dev.dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - HTTP_PROXY
+        - HTTPS_PROXY
+        - no_proxy
+        - NO_PROXY
     ports:
       - "4000:4000"
     depends_on:
       - db
     volumes:
-      - .:/code
+      - .:/opt
