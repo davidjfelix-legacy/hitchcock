@@ -23,7 +23,8 @@ defmodule Hitchcock.ConnCase do
       alias Hitchcock.Repo
       import Ecto
       import Ecto.Changeset
-      import Ecto.Query, only: [from: 1, from: 2]
+      import Ecto.Query
+      import Hitchcock.TestHelpers
 
       import Hitchcock.Router.Helpers
 

@@ -5,19 +5,40 @@ defmodule Hitchcock.ErrorView do
     "Page not found"
   end
 
-  def render("404.json", _assigns) do
-    %{
+  def render("400.json", %{description: description, fields: fields}) do
+    render(Hitchcock.ErrorView, "error.json", %{
       code: 400,
-      message: "Not found"
-    }
+      description: description,
+      fields: fields
+    })
+  end
+
+  def render("404.json", %{type: type}) do
+    render(Hitchcock.ErrorView, "error.json" %{
+      code: 404,
+      description: type <> " not found."
+      fields: ["id"]
+    })
+  end
+
+  def render("422.json", %{type: type, fields: fields}) do
+    render(Retro.ErrorView, "error.json", %{
+      code: 422,
+      description: type <> " was understood as JSON but unprocessable.",
+      fields: fields
+    })
   end
 
   def render("500.html", _assigns) do
     "Server internal error"
   end
 
-  def render("error.json", %{error: error}) do
-    error
+  def render("error.json", %{code: code, description: description, fields: fields}) do
+    %{
+      code: code,
+      description: description,
+      fields: fields
+    }
   end
 
   # In case no render clause matches or no

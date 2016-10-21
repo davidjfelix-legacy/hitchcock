@@ -1,35 +1,33 @@
 defmodule Hitchcock.UserControllerTest do
-  use Hitchcock.ConnCase
+  use Hitchcock.ConnCase, async: true
 
   alias Hitchcock.User
+
+  ### Test fixtures
+  @user1 %{
+  }
+  @user2 %{
+  }
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
   ### Index tests
-  # TODO write test
-  test "index renders json for an error when not authenticated", %{conn: conn} do
-    # conn = get conn, user_path(conn, :index)
-    # assert json_response(conn, 401) == %{}
-    assert true
-  end
+  describe "index/2" do
+    test "returns an array of users when there are 2+ users", %{conn: conn} do
+      users = [User.changeset(%User{}, @user1), User.changeset(%User{}, @user2)]
 
-  test "index renders json for an error when authenticated", %{conn: conn} do
-    conn = get conn, user_path(conn, :index)
-    assert json_response(conn, 403) == %{"code" => 403, "message" => "Listing forbidden"}
-  end
+      expected = users
+                 |> Enum.map(&Repo.insert!(&1))
+                 |> Enum.map(&stringify_keys/1)
 
-  # TODO write test
-  test "index returns a 401 code when not authenticated", %{conn: conn} do
-    # conn = get conn, user_path(conn, :index)
-    # assert response(conn, 401)
-    assert true
-  end
+      response = conn
+                 |> get(user_path(conn, :index))
+                 |> json_response(200)
 
-  test "index returns a 403 code when authenticated", %{conn: conn} do
-    conn = get conn, user_path(conn, :index)
-    assert response(conn, 403)
+      assert response == expected
+    end
   end
 
 

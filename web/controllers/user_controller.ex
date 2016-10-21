@@ -5,11 +5,10 @@ defmodule Hitchcock.UserController do
   alias Ecto.UUID
 
   def index(conn, _params) do
+    users = Repo.all(User)
+
     conn
-    |> put_status(:forbidden)
-    |> render(Hitchcock.ErrorView,
-              "error.json",
-              error: %{code: 403, message: "Listing forbidden"})
+    |> render(UserView, "index.json", users: users)
   end
 
   def create(conn, user_params) do
