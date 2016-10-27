@@ -18,6 +18,5 @@ defmodule Hitchcock.Router do
     resources "/groups", GroupController
     resources "/users", UserController
     resources "/videos", VideoController
-    get "/", PageController, :index
   end
 end
