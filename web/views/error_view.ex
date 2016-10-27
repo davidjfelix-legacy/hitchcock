@@ -1,6 +1,10 @@
 defmodule Hitchcock.ErrorView do
   use Hitchcock.Web, :view
 
+  def translate_errors(changeset) do
+    Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
+  end
+
   def render("404.html", _assigns) do
     "Page not found"
   end
@@ -14,18 +18,18 @@ defmodule Hitchcock.ErrorView do
   end
 
   def render("404.json", %{type: type}) do
-    render(Hitchcock.ErrorView, "error.json" %{
+    render(Hitchcock.ErrorView, "error.json", %{
       code: 404,
-      description: type <> " not found."
+      description: type <> " not found.",
       fields: ["id"]
     })
   end
 
-  def render("422.json", %{type: type, fields: fields}) do
-    render(Retro.ErrorView, "error.json", %{
+  def render("422.json", %{changeset: changeset}) do
+    render(Hitchcock.ErrorView, "error.json", %{
       code: 422,
-      description: type <> " was understood as JSON but unprocessable.",
-      fields: fields
+      description: "JSON was unprocessable.",
+      fields: translate_errors(changeset)
     })
   end
 

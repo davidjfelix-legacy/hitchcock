@@ -17,8 +17,8 @@ defmodule Hitchcock.User do
     timestamps
   end
 
-  @required_fields ~w(username email password)
-  @optional_fields ~w(encrypted_password)
+  @allowed_fields ~w(username email password encrypted_password)a
+  @required_fields ~w(username email)a
 
   @doc """
   Creates a changeset based on the `model` and `params`.
@@ -28,8 +28,10 @@ defmodule Hitchcock.User do
   """
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @allowed_fields)
     |> generate_encrypted_password
+    |> validate_required(@required_fields)
+    |> validate_required([:encrypted_password], message: "can't be blank (set by password)")
   end
 
   defp generate_encrypted_password(current_changeset) do
