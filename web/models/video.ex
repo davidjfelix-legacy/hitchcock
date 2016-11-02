@@ -16,8 +16,8 @@ defmodule Hitchcock.Video do
     timestamps
   end
 
-  @required_fields ~w(title url description owner_id)
-  @optional_fields ~w()
+  @allowed_fields ~w(title url description owner_id)a
+  @required_fields ~w(title)a
 
   @doc """
   Creates a changeset based on the `model` and `params`.

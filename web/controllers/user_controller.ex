@@ -7,9 +7,7 @@ defmodule Hitchcock.UserController do
 
   def index(conn, _params) do
     users = Repo.all(User)
-
-    conn
-    |> render("index.json", users: users)
+    render(conn, "index.json", users: users)
   end
 
 
