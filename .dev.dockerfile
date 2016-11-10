@@ -10,13 +10,11 @@ RUN apt-get -yq update && \
         postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Get deps
-COPY mix.exs /opt/
-
 RUN  mix local.hex --force && mix hex.info
 
-ONBUILD RUN yes | mix deps.get \
-	&& mix local.rebar \
-	&& mix compile --long-compilation-threshold 40
+ONBUILD RUN mix clean && \
+            yes | mix deps.get && \
+	          mix local.rebar && \
+	          mix compile --long-compilation-threshold 40
 
 ENTRYPOINT ["mix", "phoenix.server"]
