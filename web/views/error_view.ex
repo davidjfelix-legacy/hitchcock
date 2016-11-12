@@ -17,6 +17,14 @@ defmodule Hitchcock.ErrorView do
     })
   end
 
+  def render("401.json", _assigns) do
+    render(Hitchcock.ErrorView, "error.json", %{
+      code: 400,
+      description: "Unauthorized",
+      fields: ["www-authenticate"]
+    })
+  end
+
   def render("404.json", %{type: type}) do
     render(Hitchcock.ErrorView, "error.json", %{
       code: 404,

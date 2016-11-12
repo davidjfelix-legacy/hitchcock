@@ -1,7 +1,7 @@
 defmodule Hitchcock.VideoControllerTest do
   use Hitchcock.ConnCase, async: true
 
-  alias Hitchcock.Video
+  alias Hitchcock.{User, Video}
 
   ### Test fixtures
   @video1 %{
@@ -12,7 +12,19 @@ defmodule Hitchcock.VideoControllerTest do
   }
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    user1 = Repo.insert!(%User{
+      username: "TestUser1",
+      email: "Test1@test.com",
+      encrypted_password: "fakecrypto"
+    })
+
+    {:ok, jwt, _full_claims} = Guardian.encode_and_sign(user1)
+
+    {:ok, %{
+      conn: put_req_header(conn, "accept", "application/json"),
+      user1: user1,
+      jwt1: jwt,
+    }}
   end
 
 
@@ -157,8 +169,9 @@ defmodule Hitchcock.VideoControllerTest do
 
   ### Update controller tests
   describe "update/2" do
-    test "returns updated video when valid complete video is provided", %{conn: conn} do
-      expected = %Video{}
+    test "returns updated video when valid complete video is provided", %{conn: conn, user1: user, jwt1: jwt} do
+      expected = user
+                 |> build_assoc(:videos)
                  |> Map.merge(@video1)
                  |> Repo.insert!
                  |> stringify_keys
@@ -166,6 +179,7 @@ defmodule Hitchcock.VideoControllerTest do
                  |> Map.merge(%{"title" => "TestVideo3"})
 
       response = conn
+                 |> put_req_header("authorization", "Bearer #{jwt}")
                  |> put(video_path(conn, :update, expected["id"]), expected)
                  |> json_response(200)
 
@@ -227,13 +241,15 @@ defmodule Hitchcock.VideoControllerTest do
 
   ### Delete controller tests
   describe "delete/2" do
-    test "returns no content when video did exist", %{conn: conn} do
-      video = %Video{}
-             |> Map.merge(@video1)
-             |> Repo.insert!
+    test "returns no content when video did exist", %{conn: conn, user1: user, jwt1: jwt} do
+      video = user
+              |> build_assoc(:videos)
+              |> Map.merge(@video1)
+              |> Repo.insert!
 
       expected = ""
       response = conn
+                 |> put_req_header("authorization", "Bearer #{jwt}")
                  |> delete(video_path(conn, :delete, video.id))
                  |> response(204)
 

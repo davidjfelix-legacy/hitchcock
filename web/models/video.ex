@@ -4,19 +4,19 @@ defmodule Hitchcock.Video do
   alias Hitchcock.{Group, User}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
-  @derive {Poison.Encoder, only: [:id, :title, :url, :description]}
+  @derive {Poison.Encoder, only: [:id, :title, :is_uploaded, :description]}
   schema "videos" do
     field :title, :string
-    field :url, :string
+    field :is_uploaded, :boolean
     field :description, :string
 
-    belongs_to :owner, User, type: Ecto.UUID
-    belongs_to :group, Groug, type: Ecto.UUID
+    belongs_to :user, User, type: Ecto.UUID
+    belongs_to :group, Group, type: Ecto.UUID
 
     timestamps
   end
 
-  @allowed_fields ~w(title url description owner_id)a
+  @allowed_fields ~w(title is_uploaded description user_id group_id)a
   @required_fields ~w(title)a
 
   @doc """
@@ -27,6 +27,7 @@ defmodule Hitchcock.Video do
   """
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @allowed_fields)
+    |> validate_required(@required_fields)
   end
 end

@@ -1,8 +1,12 @@
 defmodule Hitchcock.VideoController do
   use Hitchcock.Web, :controller
 
-  alias Hitchcock.{Video, ErrorView}
+  alias Hitchcock.{AuthenticationController, ErrorView, Video}
   alias Ecto.UUID
+  alias Guardian.Plug.EnsureAuthenticated
+
+
+  plug EnsureAuthenticated, [handler: AuthenticationController] when action in [:create, :update, :delete]
 
 
   def index(conn, _params) do
@@ -33,7 +37,11 @@ defmodule Hitchcock.VideoController do
 
 
   def create(conn, video_params) do
-    changeset = Video.changeset(%Video{}, video_params)
+    current_user = Guardian.Plug.current_resource(conn)
+
+    changeset = current_user
+                |> build_assoc(:videos)
+                |> Video.changeset(video_params)
 
     case Repo.insert(changeset) do
       {:ok, video} ->
