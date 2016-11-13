@@ -8,7 +8,7 @@ defmodule Hitchcock.Group do
   schema "groups" do
     field :name, :string
 
-    belongs_to :owner, User, type: Ecto.UUID
+    belongs_to :user, User, type: Ecto.UUID
 
     timestamps
   end

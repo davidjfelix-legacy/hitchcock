@@ -15,7 +15,7 @@ defmodule Hitchcock.AuthenticationController do
       :error ->
         conn
         |> put_status(:unauthorized)
-        |> put_resp_header("www-authenticate", authentication_path(conn, :create))
+        |> put_resp_header("www-authenticate", "Bearer realm=\"" <> authentication_path(conn, :create) <> "\"")
         |> render(ErrorView, "401.json")
     end
   end
@@ -34,7 +34,7 @@ defmodule Hitchcock.AuthenticationController do
   def unauthenticated(conn, _params) do
     conn
     |> put_status(:unauthorized)
-    |> put_resp_header("www-authenticate", authentication_path(conn, :create))
+    |> put_resp_header("www-authenticate", "Bearer realm=\"" <> authentication_path(conn, :create) <> "\"")
     |> render(ErrorView, "401.json")
   end
 end

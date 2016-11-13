@@ -18,11 +18,17 @@ defmodule Hitchcock.VideoControllerTest do
       encrypted_password: "fakecrypto"
     })
 
+    group1 = user1
+             |> build_assoc(:groups)
+             |> Map.merge(%{name: "TestVideoCreators"})
+             |> Repo.insert!
+
     {:ok, jwt, _full_claims} = Guardian.encode_and_sign(user1)
 
     {:ok, %{
       conn: put_req_header(conn, "accept", "application/json"),
       user1: user1,
+      group1: group1,
       jwt1: jwt,
     }}
   end
@@ -30,8 +36,11 @@ defmodule Hitchcock.VideoControllerTest do
 
   ### Index controller tests
   describe "index/2" do
-    test "returns an array of videos when there are 2+ videos", %{conn: conn} do
-      videos = [Video.changeset(%Video{}, @video1), Video.changeset(%Video{}, @video2)]
+    test "returns an array of videos when there are 2+ videos", %{conn: conn, user1: user, group1: group} do
+      videos = [
+        Video.changeset(%Video{user_id: user.id, group_id: group.id}, @video1),
+        Video.changeset(%Video{user_id: user.id, group_id: group.id}, @video2)
+      ]
 
       expected = videos
                  |> Enum.map(&Repo.insert!(&1))
@@ -45,8 +54,8 @@ defmodule Hitchcock.VideoControllerTest do
       assert response == expected
     end
 
-    test "returns an array with 1 video when there is 1 video", %{conn: conn} do
-      video = Video.changeset(%Video{}, @video1)
+    test "returns an array with 1 video when there is 1 video", %{conn: conn, user1: user, group1: group} do
+      video = Video.changeset(%Video{user_id: user.id, group_id: group.id}, @video1)
 
       expected = video
                  |> Repo.insert!
@@ -73,8 +82,8 @@ defmodule Hitchcock.VideoControllerTest do
 
   ### Show controller tests
   describe "show/2" do
-    test "returns a video when it exists", %{conn: conn} do
-      expected = %Video{}
+    test "returns a video when it exists", %{conn: conn, user1: user, group1: group} do
+      expected = %Video{user_id: user.id, group_id: group.id}
                  |> Map.merge(@video1)
                  |> Repo.insert!
                  |> stringify_keys
@@ -111,8 +120,9 @@ defmodule Hitchcock.VideoControllerTest do
 
   ### Create controller tests
   describe "create/2" do
-    test "returns the video with id when video is valid", %{conn: conn} do
+    test "returns the video with id when video is valid", %{conn: conn, jwt1: jwt} do
       response = conn
+                 |> put_req_header("authorization", jwt)
                  |> post(video_path(conn, :create), @video1)
                  |> json_response(201)
       expected = Video
@@ -123,8 +133,9 @@ defmodule Hitchcock.VideoControllerTest do
       assert response == expected
     end
 
-    test "returns location header when video is valid", %{conn: conn} do
+    test "returns location header when video is valid", %{conn: conn, jwt1: jwt} do
       response = conn
+                 |> put_req_header("authorization", jwt)
                  |> post(video_path(conn, :create), @video1)
                  |> get_resp_header("location")
 
@@ -136,7 +147,7 @@ defmodule Hitchcock.VideoControllerTest do
       assert response == expected
     end
 
-    test "returns a server message with 422 error when video is invalid", %{conn: conn} do
+    test "returns a server message with 422 error when video is invalid", %{conn: conn, jwt1: jwt} do
       expected = %{
         "code" => 422,
         "description" => "JSON was unprocessable.",
@@ -147,15 +158,17 @@ defmodule Hitchcock.VideoControllerTest do
 
       # Post an empty map
       response = conn
+                 |> put_req_header("authorization", jwt)
                  |> post(video_path(conn, :create), %{})
                  |> json_response(422)
 
       assert response == expected
     end
 
-    test "does not return a location header when video is invalid", %{conn: conn} do
+    test "does not return a location header when video is invalid", %{conn: conn, jwt1: jwt} do
       # Post an empty map
       response = conn
+                 |> put_req_header("authorization", jwt)
                  |> post(video_path(conn, :create), %{})
                  |> get_resp_header("location")
 
@@ -169,9 +182,8 @@ defmodule Hitchcock.VideoControllerTest do
 
   ### Update controller tests
   describe "update/2" do
-    test "returns updated video when valid complete video is provided", %{conn: conn, user1: user, jwt1: jwt} do
-      expected = user
-                 |> build_assoc(:videos)
+    test "returns updated video when valid complete video is provided", %{conn: conn, user1: user, group1: group, jwt1: jwt} do
+      expected = %Video{user_id: user.id, group_id: group.id}
                  |> Map.merge(@video1)
                  |> Repo.insert!
                  |> stringify_keys
@@ -179,15 +191,15 @@ defmodule Hitchcock.VideoControllerTest do
                  |> Map.merge(%{"title" => "TestVideo3"})
 
       response = conn
-                 |> put_req_header("authorization", "Bearer #{jwt}")
+                 |> put_req_header("authorization", jwt)
                  |> put(video_path(conn, :update, expected["id"]), expected)
                  |> json_response(200)
 
       assert response == expected
     end
 
-    test "returns updated video when valid partial video is provided", %{conn: conn} do
-      expected = %Video{}
+    test "returns updated video when valid partial video is provided", %{conn: conn, user1: user, group1: group, jwt1: jwt} do
+      expected = %Video{user_id: user.id, group_id: group.id}
                  |> Map.merge(@video1)
                  |> Repo.insert!
                  |> stringify_keys
@@ -197,14 +209,15 @@ defmodule Hitchcock.VideoControllerTest do
       patched = expected |> Map.take(["title"])
 
       response = conn
+                 |> put_req_header("authorization", jwt)
                  |> patch(video_path(conn, :update, expected["id"]), patched)
                  |> json_response(200)
 
       assert response == expected
     end
 
-    test "returns a server message with 422 when invalid video is provided", %{conn: conn} do
-      updated = %Video{}
+    test "returns a server message with 422 when invalid video is provided", %{conn: conn, user1: user, group1: group, jwt1: jwt} do
+      updated = %Video{user_id: user.id, group_id: group.id}
                 |> Map.merge(@video1)
                 |> Repo.insert!
                 |> stringify_keys
@@ -213,24 +226,27 @@ defmodule Hitchcock.VideoControllerTest do
       expected = %{"code" => 422, "description" => "JSON was unprocessable.", "fields" => %{"title" => ["is invalid"]}}
 
       response = conn
+                 |> put_req_header("authorization", jwt)
                  |> put(video_path(conn, :update, updated["id"]), updated)
                  |> json_response(422)
 
       assert response == expected
     end
 
-    test "returns server message with 404 when video is not found", %{conn: conn} do
+    test "returns server message with 404 when video is not found", %{conn: conn, jwt1: jwt} do
       expected = %{"code" => 404, "description" => "Video not found.", "fields" => ["id"]}
       response = conn
+                 |> put_req_header("authorization", jwt)
                  |> put(video_path(conn, :update, Ecto.UUID.generate()), @video1)
                  |> json_response(404)
 
       assert response == expected
     end
 
-    test "returns a server message with 400 when a non-uuid id is provided", %{conn: conn} do
+    test "returns a server message with 400 when a non-uuid id is provided", %{conn: conn, jwt1: jwt} do
       expected = %{"code" => 400, "description" => "Invalid request.", "fields" => ["id"]}
       response = conn
+                 |> put_req_header("authorization", jwt)
                  |> put(video_path(conn, :update, "Fake ID"), @video1)
                  |> json_response(400)
 
@@ -241,34 +257,35 @@ defmodule Hitchcock.VideoControllerTest do
 
   ### Delete controller tests
   describe "delete/2" do
-    test "returns no content when video did exist", %{conn: conn, user1: user, jwt1: jwt} do
-      video = user
-              |> build_assoc(:videos)
+    test "returns no content when video did exist", %{conn: conn, user1: user, group1: group, jwt1: jwt} do
+      video = %Video{user_id: user.id, group_id: group.id}
               |> Map.merge(@video1)
               |> Repo.insert!
 
       expected = ""
       response = conn
-                 |> put_req_header("authorization", "Bearer #{jwt}")
+                 |> put_req_header("authorization", jwt)
                  |> delete(video_path(conn, :delete, video.id))
                  |> response(204)
 
       assert response == expected
     end
 
-    test "returns a server message with 404 error when video does not exist", %{conn: conn} do
+    test "returns a server message with 404 error when video does not exist", %{conn: conn, jwt1: jwt} do
       expected = %{"code" => 404, "description" => "Video not found.", "fields" => ["id"]}
 
       response = conn
+                 |> put_req_header("authorization", jwt)
                  |> delete(video_path(conn, :delete, Ecto.UUID.generate()))
                  |> json_response(404)
 
       assert response == expected
     end
 
-    test "returns a server message with 400 error when a non-uuid id is provided", %{conn: conn} do
+    test "returns a server message with 400 error when a non-uuid id is provided", %{conn: conn, jwt1: jwt} do
       expected = %{"code" => 400, "description" => "Invalid request.", "fields" => ["id"]}
       response = conn
+                 |> put_req_header("authorization", jwt)
                  |> put(video_path(conn, :delete, "Fake ID"))
                  |> json_response(400)
 

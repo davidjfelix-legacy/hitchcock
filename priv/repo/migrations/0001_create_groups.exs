@@ -7,7 +7,7 @@ defmodule Hitchcock.Repo.Migrations.CreateGroups do
       add :id, :uuid, primary_key: true
       add :name, :string, null: false
 
-      add :owner_id, references(:users, on_delete: :delete_all, type: :uuid), null: false
+      add :user_id, references(:users, on_delete: :delete_all, type: :uuid), null: false
 
       timestamps
     end
