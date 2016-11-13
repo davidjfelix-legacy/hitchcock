@@ -6,8 +6,19 @@ defmodule Hitchcock.Repo.Migrations.CreateGroups do
     create table(:groups, primary_key: false) do
       add :id, :uuid, primary_key: true
       add :name, :string, null: false
+      add :is_user_group, :boolean, default: false, null: false
 
       add :user_id, references(:users, on_delete: :delete_all, type: :uuid), null: false
+
+      timestamps
+    end
+
+    ### User Groups
+    create table(:user_groups, primary_key: false) do
+      add :id, :uuid, primary_key: true
+
+      add :user_id, references(:users, on_delete: :delete_all, type: :uuid), null: false
+      add :group_id, references(:groups, on_delete: :delete_all, type: :uuid), null: false
 
       timestamps
     end

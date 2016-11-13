@@ -29,5 +29,7 @@ defmodule Hitchcock.Video do
     model
     |> cast(params, @allowed_fields)
     |> validate_required(@required_fields)
+    |> foreign_key_constraint(:user_id)
+    |> foreign_key_constraint(:group_id)
   end
 end

@@ -1,7 +1,7 @@
 defmodule Hitchcock.User do
   use Hitchcock.Web, :model
 
-  alias Hitchcock.{Group, Video}
+  alias Hitchcock.{Group, UserGroup, Video}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
   @derive {Poison.Encoder, only: [:id, :username, :email]}
@@ -10,6 +10,10 @@ defmodule Hitchcock.User do
     field :email, :string
     field :encrypted_password, :string
     field :password, :string, virtual: true
+
+    # Has one. A user_group is created when user is created via controller
+    has_one :user_group, UserGroup
+    has_one :user_group_group, through: [:user_group, :group]
 
     has_many :groups, Group
     has_many :videos, Video

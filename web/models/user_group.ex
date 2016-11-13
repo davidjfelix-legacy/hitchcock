@@ -1,20 +1,12 @@
-defmodule Hitchcock.Group do
+defmodule Hitchcock.UserGroup do
   use Hitchcock.Web, :model
 
-  alias Hitchcock.{User, UserGroup}
+  alias Hitchcock.{Group, User}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
-  schema "groups" do
-    field :name, :string
-    field :is_user_group, :boolean
-
-    # Has one or none. Canonically, when is_user_group is set true
-    has_one :user_group, UserGroup
-    has_one :user_group_user, through: [:user_group, :user]
-
-    # The user who created and owns the group if is_user_group is false,
-    # this can be changed, otherwise it can't as it's named after the user
+  schema "user_groups" do
+    belongs_to :group, Group, type: Ecto.UUID
     belongs_to :user, User, type: Ecto.UUID
 
     timestamps

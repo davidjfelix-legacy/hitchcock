@@ -38,9 +38,11 @@ defmodule Hitchcock.VideoController do
 
   def create(conn, video_params) do
     current_user = Guardian.Plug.current_resource(conn)
+                   |> Repo.preload(:user_group)
+                   |> Repo.preload(:user_group_group)
 
-    changeset = current_user
-                |> build_assoc(:videos)
+
+    changeset = %Video{user_id: current_user.id, group_id: current_user.user_group_group.id}
                 |> Video.changeset(video_params)
 
     case Repo.insert(changeset) do

@@ -1,7 +1,7 @@
 defmodule Hitchcock.VideoControllerTest do
   use Hitchcock.ConnCase, async: true
 
-  alias Hitchcock.{User, Video}
+  alias Hitchcock.{User, UserGroup, Video}
 
   ### Test fixtures
   @video1 %{
@@ -20,8 +20,12 @@ defmodule Hitchcock.VideoControllerTest do
 
     group1 = user1
              |> build_assoc(:groups)
-             |> Map.merge(%{name: "TestVideoCreators"})
+             |> Map.merge(%{name: "TestUser1"})
              |> Repo.insert!
+
+    user_group1 = %UserGroup{user_id: user1.id, group_id: group1.id}
+                  |> Repo.insert!
+
 
     {:ok, jwt, _full_claims} = Guardian.encode_and_sign(user1)
 
@@ -29,6 +33,7 @@ defmodule Hitchcock.VideoControllerTest do
       conn: put_req_header(conn, "accept", "application/json"),
       user1: user1,
       group1: group1,
+      user_group1: user_group1,
       jwt1: jwt,
     }}
   end
