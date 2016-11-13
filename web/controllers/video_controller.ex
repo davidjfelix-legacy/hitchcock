@@ -9,12 +9,14 @@ defmodule Hitchcock.VideoController do
   plug EnsureAuthenticated, [handler: AuthenticationController] when action in [:create, :update, :delete]
 
 
+  ### GET /videos
   def index(conn, _params) do
     videos = Repo.all(Video)
     render(conn, "index.json", videos: videos)
   end
 
 
+  ### GET /videos/:id
   def show(conn, %{"id" => id}) do
     case UUID.cast(id) do
       {:ok, uuid} ->
@@ -36,11 +38,11 @@ defmodule Hitchcock.VideoController do
   end
 
 
+  ### POST /videos
   def create(conn, video_params) do
     current_user = Guardian.Plug.current_resource(conn)
                    |> Repo.preload(:user_group)
                    |> Repo.preload(:user_group_group)
-
 
     changeset = %Video{user_id: current_user.id, group_id: current_user.user_group_group.id}
                 |> Video.changeset(video_params)
@@ -60,6 +62,7 @@ defmodule Hitchcock.VideoController do
   end
 
 
+  ### PATCH/PUT /videos/:id
   def update(conn, video_params) do
     case UUID.cast(video_params["id"]) do
       {:ok, uuid} ->
@@ -89,6 +92,8 @@ defmodule Hitchcock.VideoController do
     end
   end
 
+
+  ### DELETE /videos/:id
   def delete(conn, %{"id" => id}) do
     case UUID.cast(id) do
       {:ok, uuid} ->
