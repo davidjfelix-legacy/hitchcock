@@ -19,7 +19,7 @@ defmodule Hitchcock.Endpoint do
     plug Phoenix.CodeReloader
   end
 
-  plug Plug.RequestId
+  plug Plug.RequestId, http_header: "request-id"
   plug Plug.Logger
 
   plug Plug.Parsers,
@@ -27,7 +27,6 @@ defmodule Hitchcock.Endpoint do
     pass: ["*/*"],
     json_decoder: Poison
 
-  plug Plug.MethodOverride
   plug Plug.Head
 
   plug Plug.Session,

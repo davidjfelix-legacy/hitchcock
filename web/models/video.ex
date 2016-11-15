@@ -4,7 +4,7 @@ defmodule Hitchcock.Video do
   alias Hitchcock.{Group, User}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
-  @derive {Poison.Encoder, only: [:id, :title, :is_uploaded, :description]}
+  @derive {Poison.Encoder, only: [:id, :title, :is_uploaded, :description, :user_id, :group_id]}
   schema "videos" do
     field :title, :string
     field :is_uploaded, :boolean

@@ -25,5 +25,11 @@ defmodule Hitchcock.Repo.Migrations.CreateGroups do
 
     # Groups use name as a changable identifier in the API
     create unique_index(:groups, [:name])
+
+    # Can't have more than one UserGroup per Group
+    create unique_index(:user_groups, [:group_id])
+
+    # Can't have more than one UserGroup per User
+    create unique_index(:user_groups, [:user_id])
   end
 end
