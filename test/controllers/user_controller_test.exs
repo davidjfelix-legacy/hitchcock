@@ -161,6 +161,28 @@ defmodule Hitchcock.UserControllerTest do
 
       assert response == expected
     end
+
+    # FIXME: make this a 409 and check that both email and username do this
+    test "returns a server message with 422 error when username or email is not unique", %{conn: conn} do
+      %User{}
+      |> Map.merge(@user1)
+      |> Map.merge(%{encrypted_password: "fakecrypto"})
+      |> Repo.insert!
+
+      expected = %{
+        "code" => 422,
+        "description" => "JSON was unprocessable.",
+        "fields" => %{
+          "username" => ["has already been taken"],
+        }
+      }
+
+      response = conn
+                 |> post(user_path(conn, :create), @user1)
+                 |> json_response(422)
+
+      assert response == expected
+    end
   end
 
 

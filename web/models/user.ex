@@ -35,6 +35,8 @@ defmodule Hitchcock.User do
     |> cast(params, @allowed_fields)
     |> generate_encrypted_password
     |> validate_required(@required_fields)
+    |> unique_constraint(:username)
+    |> unique_constraint(:email)
     |> validate_required([:encrypted_password], message: "can't be blank (set by password)")
   end
 
