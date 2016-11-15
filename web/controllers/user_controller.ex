@@ -1,7 +1,7 @@
 defmodule Hitchcock.UserController do
   use Hitchcock.Web, :controller
 
-  alias Hitchcock.{User, ErrorView}
+  alias Hitchcock.{ErrorView, Group, User, UserGroup}
   alias Ecto.UUID
 
 
@@ -37,11 +37,31 @@ defmodule Hitchcock.UserController do
 
     case Repo.insert(changeset) do
       {:ok, user} ->
-        conn
-        |> put_status(:created)
-        |> put_resp_header("location", user_path(conn, :show, user.id))
-        |> render("show.json", user: user)
-
+        # Create the user group
+        changeset = Group.changeset(%Group{}, %{name: user.username, user_id: user.id, is_user_group: true})
+        case Repo.insert(changeset) do
+          {:ok, group} ->
+            changeset = UserGroup.changeset(%UserGroup{}, %{group_id: group.id, user_id: user.id})
+            case Repo.insert(changeset) do
+              {:ok, user_group} ->
+                conn
+                |> put_status(:created)
+                |> put_resp_header("location", user_path(conn, :show, user.id))
+                |> render("show.json", user: user)
+              {:error, changeset} ->
+                Repo.delete!(user)
+                Repo.delete!(group)
+                # FIXME: make this more relevant for user and throw a 500 not 422
+                conn
+                |> put_status(:unprocessable_entity)
+                |> render(ErrorView, "422.json", changeset: changeset)
+            end
+          {:error, changeset} ->
+            # FIXME: make this more relevant for user and throw a 409 not 422
+            conn
+            |> put_status(:unprocessable_entity)
+            |> render(ErrorView, "422.json", changeset: changeset)
+        end
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

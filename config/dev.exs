@@ -22,6 +22,7 @@ config :hitchcock, Hitchcock.Endpoint,
       ~r{web/.*(ex)$},
       ~r{web/channels/.*(ex)$},
       ~r{web/controllers/.*(ex)$},
+      ~r{web/models/.*(ex)$},
       ~r{web/templates/.*(eex)$},
       ~r{web/views/.*(ex)$}
     ]

@@ -20,8 +20,8 @@ defmodule Hitchcock.Group do
     timestamps
   end
 
-  @allowed_fields ~w(name is_user_group)a
-  @required_fields ~w(name)a
+  @allowed_fields ~w(name is_user_group user_id)a
+  @required_fields ~w(name user_id)a
 
   @doc """
   Creates a changeset based on the `model` and `params`.
@@ -31,6 +31,7 @@ defmodule Hitchcock.Group do
   """
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @allowed_fields)
+    |> validate_required(@required_fields)
   end
 end
