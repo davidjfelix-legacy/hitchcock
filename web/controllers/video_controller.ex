@@ -18,6 +18,7 @@ defmodule Hitchcock.VideoController do
 
   ### GET /videos/:id
   def show(conn, %{"id" => id}) do
+    # FIXME: verify visible
     case UUID.cast(id) do
       {:ok, uuid} ->
         case Repo.get(Video, uuid) do
@@ -44,8 +45,9 @@ defmodule Hitchcock.VideoController do
                    |> Repo.preload(:user_group)
                    |> Repo.preload(:user_group_group)
 
-    changeset = %Video{user_id: current_user.id, group_id: current_user.user_group_group.id}
-                |> Video.changeset(video_params)
+    # FIXME: permissions and don't allow group jumping
+    video_params = Map.merge(video_params, %{user_id: current_user.id, group_id: current_user.user_group_group.id})
+    changeset = Video.changeset(%Video{}, video_params)
 
     case Repo.insert(changeset) do
       {:ok, video} ->
@@ -64,6 +66,7 @@ defmodule Hitchcock.VideoController do
 
   ### PATCH/PUT /videos/:id
   def update(conn, video_params) do
+    # FIXME: auth permissions and group jumping
     case UUID.cast(video_params["id"]) do
       {:ok, uuid} ->
         case Repo.get(Video, uuid) do
@@ -95,6 +98,7 @@ defmodule Hitchcock.VideoController do
 
   ### DELETE /videos/:id
   def delete(conn, %{"id" => id}) do
+    # FIXME: auth
     case UUID.cast(id) do
       {:ok, uuid} ->
         case Repo.get(Video, uuid) do

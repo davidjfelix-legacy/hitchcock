@@ -297,4 +297,6 @@ defmodule Hitchcock.VideoControllerTest do
       assert response == expected
     end
   end
+
+  # FIXME: add auth tests on creating and editing video
 end

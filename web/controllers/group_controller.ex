@@ -4,12 +4,17 @@ defmodule Hitchcock.GroupController do
   alias Hitchcock.Group
   alias Ecto.UUID
 
+  plug EnsureAuthenticated, [handler: AuthenticationController] when action in [:create, :update, :delete]
+
+
   def index(conn, _params) do
     groups = Repo.all(Group)
     render(conn, "index.json", groups: groups)
   end
 
   def create(conn, group_params) do
+    current_user = Guardian.Plug.current_resource(conn)
+    group_params = Map.merge(group_params, %{user_id: current_user.id})
     changeset = Group.changeset(%Group{}, group_params)
 
     case Repo.insert(changeset) do
@@ -50,6 +55,7 @@ defmodule Hitchcock.GroupController do
   end
 
   def update(conn, group_params) do
+    # FIXME: auth
     case UUID.cast(group_params["id"]) do
       {:ok, uuid} ->
         case Repo.get(Group, uuid) do
@@ -82,6 +88,7 @@ defmodule Hitchcock.GroupController do
   end
 
   def delete(conn, %{"id" => id}) do
+    # FIXME: auth
     group = Repo.get!(Group, id)
 
     # Here we use delete! (with a bang) because we expect
