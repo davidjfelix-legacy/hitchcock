@@ -1,8 +1,9 @@
 defmodule Hitchcock.GroupController do
   use Hitchcock.Web, :controller
 
-  alias Hitchcock.Group
+  alias Hitchcock.{AuthenticationController, Group}
   alias Ecto.UUID
+  alias Guardian.Plug.EnsureAuthenticated
 
   plug EnsureAuthenticated, [handler: AuthenticationController] when action in [:create, :update, :delete]
 

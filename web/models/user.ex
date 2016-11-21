@@ -4,6 +4,7 @@ defmodule Hitchcock.User do
   alias Hitchcock.{Group, UserGroup, Video}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @foreign_key_type Ecto.UUID
   @derive {Poison.Encoder, only: [:id, :username, :email]}
   schema "users" do
     field :username, :string
@@ -15,8 +16,10 @@ defmodule Hitchcock.User do
     has_one :user_group, UserGroup
     has_one :user_group_group, through: [:user_group, :group]
 
-    has_many :groups, Group
+    has_many :owned_groups, Group, foreign_key: "owner_id"
     has_many :videos, Video
+
+    many_to_many :groups, Group, join_through: "group_members"
 
     timestamps
   end

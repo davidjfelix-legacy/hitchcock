@@ -46,7 +46,7 @@ defmodule Hitchcock.VideoController do
                    |> Repo.preload(:user_group_group)
 
     # FIXME: permissions and don't allow group jumping
-    video_params = Map.merge(video_params, %{user_id: current_user.id, group_id: current_user.user_group_group.id})
+    video_params = Map.merge(video_params, %{"user_id" => current_user.id, "group_id" => current_user.user_group_group.id})
     changeset = Video.changeset(%Video{}, video_params)
 
     case Repo.insert(changeset) do
@@ -98,7 +98,10 @@ defmodule Hitchcock.VideoController do
 
   ### DELETE /videos/:id
   def delete(conn, %{"id" => id}) do
-    # FIXME: auth
+    current_user = Guardian.Plug.current_resource(conn)
+                   |> Repo.preload(:user_group)
+                   |> Repo.preload(:user_group_group)
+
     case UUID.cast(id) do
       {:ok, uuid} ->
         case Repo.get(Video, uuid) do
@@ -107,9 +110,17 @@ defmodule Hitchcock.VideoController do
             |> put_status(:not_found)
             |> render(ErrorView, "404.json", %{type: "Video"})
 
-          card ->
-            Repo.delete!(card)
-            send_resp(conn, :no_content, "")
+          video ->
+            video = video |> Repo.preload(:user)
+            case video.user.id == current_user.id do
+              true ->
+                Repo.delete!(video)
+                send_resp(conn, :no_content, "")
+              _ ->
+                conn
+                |> put_status(:forbidden)
+                |> render(ErrorView, "403.json")
+            end
         end
       :error ->
         conn

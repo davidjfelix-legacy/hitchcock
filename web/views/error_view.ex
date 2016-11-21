@@ -25,6 +25,14 @@ defmodule Hitchcock.ErrorView do
     })
   end
 
+  def render("403.json", _assigns) do
+    render(Hitchcock.ErrorView, "error.json", %{
+      code: 403,
+      description: "Forbidden",
+      fields: ["user_id", "id"]
+    })
+  end
+
   def render("404.json", %{type: type}) do
     render(Hitchcock.ErrorView, "error.json", %{
       code: 404,

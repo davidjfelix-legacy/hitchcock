@@ -18,14 +18,27 @@ defmodule Hitchcock.VideoControllerTest do
       encrypted_password: "fakecrypto"
     })
 
+    user2 = Repo.insert!(%User{
+      username: "TestUser2",
+      email: "Test2@test.com",
+      encrypted_password: "fakecrypto"
+    })
+
     group1 = user1
              |> build_assoc(:groups)
              |> Map.merge(%{name: "TestUser1"})
              |> Repo.insert!
 
+    group2 = user2
+             |> build_assoc(:groups)
+             |> Map.merge(%{name: "TestUser2"})
+             |> Repo.insert!
+
     user_group1 = %UserGroup{user_id: user1.id, group_id: group1.id}
                   |> Repo.insert!
 
+    user_group2 = %UserGroup{user_id: user2.id, group_id: group2.id}
+                  |> Repo.insert!
 
     {:ok, jwt, _full_claims} = Guardian.encode_and_sign(user1)
 
@@ -34,6 +47,9 @@ defmodule Hitchcock.VideoControllerTest do
       user1: user1,
       group1: group1,
       user_group1: user_group1,
+      user2: user2,
+      group2: group2,
+      user_group2: user_group2,
       jwt1: jwt,
     }}
   end
@@ -263,8 +279,9 @@ defmodule Hitchcock.VideoControllerTest do
   ### Delete controller tests
   describe "delete/2" do
     test "returns no content when video did exist", %{conn: conn, user1: user, group1: group, jwt1: jwt} do
-      video = %Video{user_id: user.id, group_id: group.id}
+      video = %Video{}
               |> Map.merge(@video1)
+              |> Map.merge(%{user_id: user.id, group_id: group.id})
               |> Repo.insert!
 
       expected = ""
@@ -291,10 +308,32 @@ defmodule Hitchcock.VideoControllerTest do
       expected = %{"code" => 400, "description" => "Invalid request.", "fields" => ["id"]}
       response = conn
                  |> put_req_header("authorization", jwt)
-                 |> put(video_path(conn, :delete, "Fake ID"))
+                 |> delete(video_path(conn, :delete, "Fake ID"))
                  |> json_response(400)
 
       assert response == expected
+    end
+
+    test "does not delete the video when the user does not own the video", %{conn: conn, user2: user, group2: group, jwt1: jwt} do
+      video = %Video{}
+              |> Map.merge(@video1)
+              |> Map.merge(%{user_id: user.id, group_id: group.id})
+              |> Repo.insert!
+
+      expected = %{"code" => 403, "description" => "Forbidden", "fields" => ["user_id", "id"]}
+      response = conn
+                 |> put_req_header("authorization", jwt)
+                 |> delete(video_path(conn, :delete, video.id))
+                 |> json_response(403)
+
+      assert response == expected
+    end
+
+    test "deletes the video when the user is in the group which owns the video", %{conn: conn, user2: user, group3: group, jwt1: jwt} do
+      video = %Video{}
+              |> Map.merge(@video1)
+              |> Map.merge(%{user_id: user.id, group_id: group.id})
+              |> Repo.insert!
     end
   end
 
